@@ -68,9 +68,8 @@ bool Disassembly::put(struct zdis_ctx *ctx, enum zdis_put kind, int32_t val, boo
                 }
             } else {
                 buffer[buffer_offset++] = ctx->zdis_user_size & SUFFIXED_IMM ? '0' : '$';
-                byte_to_hex(buf, val);
-                strcpy(&buffer[buffer_offset], buf);
-                buffer_offset += strlen(buf);
+                byte_to_hex(&buffer[buffer_offset], val);
+                buffer_offset += 2;
 
                 if (ctx->zdis_user_size & SUFFIXED_IMM) {
                     buffer[buffer_offset++] = 'h';
@@ -111,12 +110,12 @@ bool Disassembly::put(struct zdis_ctx *ctx, enum zdis_put kind, int32_t val, boo
                 } else {
                     buffer[buffer_offset++] = ctx->zdis_user_size & SUFFIXED_IMM ? '0' : '$';
                     if (il) {
-                        int_to_hex(buf, val);
+                        int_to_hex(&buffer[buffer_offset], val);
+                        buffer_offset += 6;
                     } else {
-                        short_to_hex(buf, val);
+                        short_to_hex(&buffer[buffer_offset], val);
+                        buffer_offset += 4;
                     }
-                    strcpy(&buffer[buffer_offset], buf);
-                    buffer_offset += strlen(buf);
 
                     if (ctx->zdis_user_size & SUFFIXED_IMM) {
                         buffer[buffer_offset++] = 'h';
@@ -157,21 +156,27 @@ bool Disassembly::put(struct zdis_ctx *ctx, enum zdis_put kind, int32_t val, boo
     }
 }
 
-bool Disassembly::disassemble_line() {
+uint8_t Disassembly::set_label(char *buf, char *string) {
+    size_t len = strlen(string) + 3;
+
+    buf[0] = COMMAND_LABEL_TAB;
+    buf[1] = COMMAND_SET_COLOR;
+    buf[2] = 0;
+    strcpy(&buf[3], string);
+    buf[len++] = ':';
+
+    return len;
+}
+
+bool Disassembly::disassemble_line(bool allow_label) {
     auto dis_line = &disassembly_lines[line];
     dis_line->address = ctx->zdis_start_addr = ctx->zdis_end_addr;
 
     // First check if a label is present
     char *string;
-    if ((string = equates.find((uint24_t) ctx->zdis_end_addr + ctx->zdis_offset))) {
-        dis_line->buffer[0] = COMMAND_LABEL_TAB;
-        dis_line->buffer[1] = COMMAND_SET_COLOR;
-        dis_line->buffer[2] = 0;
-        strcpy(&dis_line->buffer[3], string);
-
+    if (allow_label && (string = equates.find((uint24_t) ctx->zdis_end_addr + ctx->zdis_offset))) {
+        dis_line->buffer_size = set_label(dis_line->buffer, string);
         dis_line->instruction_size = 0;
-        dis_line->buffer_size = strlen(string) + 3;
-        dis_line->buffer[dis_line->buffer_size++] = ':';
 
         dis_line = &disassembly_lines[line + 1];
         dis_line->address = ctx->zdis_start_addr;
@@ -219,7 +224,7 @@ void Disassembly::run() {
     equates.load();
     static_equates = equates;
 
-    // Setup the ctx parameters
+    // Set the ctx parameters
     ctx->zdis_put = &Disassembly::put;
     ctx->zdis_start_addr = 0;
     ctx->zdis_end_addr = 0;
@@ -234,7 +239,7 @@ void Disassembly::run() {
 
     // Next, disassembly the first lines
     while (line < 24) {
-        disassemble_line();
+        disassemble_line(true);
     }
 
     // Keep displaying the disassembly
@@ -289,33 +294,44 @@ void Disassembly::run() {
         gfx_SwapDraw();
 
         if (kb_IsDown(kb_KeyUp) && disassembly_lines[0].address) {
+            struct disassembly_line *line0 = &disassembly_lines[0];
+            struct disassembly_line *line1 = &disassembly_lines[1];
+
             // Shift the lines up
-            ctx->zdis_start_addr = ctx->zdis_end_addr = disassembly_lines[0].address;
-            memmove(&disassembly_lines[1], &disassembly_lines[0], sizeof (disassembly_lines[0]) * 24);
+            ctx->zdis_start_addr = ctx->zdis_end_addr = line0->address;
+            memmove(line1, line0, sizeof (disassembly_lines[0]) * 24);
 
-            if (ctx->zdis_start_addr >= 15) {
-                ctx->zdis_start_addr -= 15;
+            // Check if we might add a label
+            char *string;
+            if (line1->instruction_size && (string = equates.find(line1->address + ctx->zdis_offset))) {
+                line0->instruction_size = 0;
+                line0->buffer_size = set_label(line0->buffer, string);
+                line0->address = line1->address;
             } else {
-                ctx->zdis_start_addr = 0;
-            }
-
-            uint32_t temp_end_addr = ctx->zdis_end_addr;
-
-            while (ctx->zdis_start_addr < temp_end_addr) {
-                ctx->zdis_end_addr = ctx->zdis_start_addr;
-                zdis_inst_size(ctx);
-
-                if (ctx->zdis_end_addr == temp_end_addr) {
-                    // Found the last instruction, set the right address
-                    ctx->zdis_end_addr = ctx->zdis_start_addr;
-                    break;
+                if (ctx->zdis_start_addr >= 15) {
+                    ctx->zdis_start_addr -= 15;
+                } else {
+                    ctx->zdis_start_addr = 0;
                 }
 
-                ctx->zdis_start_addr = ctx->zdis_end_addr;
-            }
+                uint32_t temp_end_addr = ctx->zdis_end_addr;
 
-            line = 0;
-            disassemble_line();
+                while (ctx->zdis_start_addr < temp_end_addr) {
+                    ctx->zdis_end_addr = ctx->zdis_start_addr;
+                    zdis_inst_size(ctx);
+
+                    if (ctx->zdis_end_addr == temp_end_addr) {
+                        // Found the last instruction, set the right address
+                        ctx->zdis_end_addr = ctx->zdis_start_addr;
+                        break;
+                    }
+
+                    ctx->zdis_start_addr = ctx->zdis_end_addr;
+                }
+
+                line = 0;
+                disassemble_line(false);
+            }
         } else if (kb_IsDown(kb_KeyDown)) {
             // Shift the lines down
             memmove(&disassembly_lines[0], &disassembly_lines[1], sizeof (disassembly_lines[0]) * 24);
@@ -325,7 +341,7 @@ void Disassembly::run() {
                 ctx->zdis_end_addr = disassembly_lines[22].address + disassembly_lines[22].instruction_size;
 
                 line = 23;
-                disassemble_line();
+                disassemble_line(true);
             }
         }
     }

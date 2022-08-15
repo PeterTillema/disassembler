@@ -39,7 +39,9 @@ private:
     Equates equates;
     uint8_t line = 0;
 
-    bool disassemble_line();
+    bool disassemble_line(bool allow_label);
+
+    static uint8_t set_label(char *buf, char *string);
 
     static bool put(struct zdis_ctx *ctx, enum zdis_put kind, int32_t val, bool il);
 
