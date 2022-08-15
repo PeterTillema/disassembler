@@ -334,13 +334,39 @@ void Disassembly::run() {
             }
         } else if (kb_IsDown(kb_KeyDown)) {
             // Shift the lines down
-            memmove(&disassembly_lines[0], &disassembly_lines[1], sizeof (disassembly_lines[0]) * 24);
+            memmove(&disassembly_lines[0], &disassembly_lines[1], sizeof(disassembly_lines[0]) * 24);
 
             // If the last line is not a label, fetch a new instruction
-            if (disassembly_lines[22].instruction_size) {
-                ctx->zdis_end_addr = disassembly_lines[22].address + disassembly_lines[22].instruction_size;
+            struct disassembly_line *line22 = &disassembly_lines[22];
+            if (line22->instruction_size) {
+                ctx->zdis_end_addr = line22->address + line22->instruction_size;
 
                 line = 23;
+                disassemble_line(true);
+            }
+        } else if (kb_IsDown(kb_Key2nd)) {
+            ctx->zdis_end_addr = disassembly_lines[0].address;
+
+            if (ctx->zdis_end_addr >= 60) {
+                ctx->zdis_end_addr -= 60;
+
+                // Get to the next full instruction
+                zdis_inst_size(ctx);
+                zdis_inst_size(ctx);
+                zdis_inst_size(ctx);
+            } else {
+                ctx->zdis_end_addr = 0;
+            }
+
+            line = 0;
+            while (line < 24) {
+                disassemble_line(true);
+            }
+        } else if (kb_IsDown(kb_KeyAlpha)) {
+            ctx->zdis_end_addr = disassembly_lines[23].address + disassembly_lines[23].instruction_size;
+
+            line = 0;
+            while (line < 24) {
                 disassemble_line(true);
             }
         }
