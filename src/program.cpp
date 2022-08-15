@@ -1,11 +1,11 @@
 #include "program.h"
-#include "disassembly.h"
+#include "disassemble.h"
 
+#include <cstdint>
+#include <cstring>
 #include <fileioc.h>
 #include <graphx.h>
 #include <keypadc.h>
-#include <stdint.h>
-#include <string.h>
 #include <ti/getcsc.h>
 
 static char programs[500][9];
@@ -77,7 +77,7 @@ void disassemble_program() {
 
             if (!slot) continue;
 
-            uint8_t *data = ti_GetDataPtr(slot);
+            auto *data = (uint8_t *) ti_GetDataPtr(slot);
             ti_Close(slot);
             if (data[0] != 0xEF || data[1] != 0x7B) continue;
 
@@ -105,12 +105,13 @@ void disassemble_program() {
     }
 
     // Setup ctx
-    struct zdis_ctx ctx;
+    struct zdis_ctx ctx{};
     ctx.zdis_user_ptr = &slot;
     ctx.zdis_offset = 0xD1A881;
     ctx.zdis_read = read;
 
-    disassembly(&ctx);
+    auto *dis = new Disassembly(&ctx);
+    dis->run();
 
     ti_Close(slot);
 }

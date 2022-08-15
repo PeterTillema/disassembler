@@ -1,6 +1,6 @@
 	section .text
-	public _int_to_digits
-_int_to_digits:
+	public __Z13int_to_digitsPcj
+__Z13int_to_digitsPcj:
 	ld	iy, 0
 	add	iy, sp
 	ld	de, (iy + 3)
@@ -40,22 +40,22 @@ _int_to_digits:
 	ret
 
 
-	public _byte_to_hex
-_byte_to_hex:
+	public __Z11byte_to_hexPch
+__Z11byte_to_hexPch:
 	ld	iy, 0
 	add	iy, sp
 	ld	hl, (iy + 3)
 	jr	__byte_hex
 
-	public _short_to_hex
-_short_to_hex:
+	public __Z12short_to_hexPcj
+__Z12short_to_hexPcj:
 	ld	iy, 0
 	add	iy, sp
 	ld	hl, (iy + 3)
 	jr	__short_hex
 
-	public _int_to_hex
-_int_to_hex:
+	public __Z10int_to_hexPcj
+__Z10int_to_hexPcj:
 	ld	iy, 0
 	add	iy, sp
 	ld	hl, (iy + 3)
@@ -73,7 +73,6 @@ _digit_to_hex:
 	rra
 	rra
 	rra
-	and	a, 0x0F
 	or	a, 0xF0
 	daa
 	add	a, 0xA0

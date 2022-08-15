@@ -2,11 +2,10 @@
 #include <keypadc.h>
 #include <ti/getcsc.h>
 
-#include "zdis/zdis.h"
 #include "os.h"
 #include "program.h"
 
-int main(void) {
+int main() {
     // Setup the screen
     gfx_Begin();
     gfx_SetDrawBuffer();
