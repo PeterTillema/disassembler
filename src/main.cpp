@@ -28,9 +28,6 @@ int main() {
         if (key == sk_Down && !selected_option) selected_option = 1;
     }
 
-    // Setup the keypad
-    kb_SetMode(MODE_3_CONTINUOUS);
-
     // Let's disassemble!
     if (key == sk_Enter) {
         if (selected_option == 0) disassemble_os();

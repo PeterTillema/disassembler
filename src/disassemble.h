@@ -16,6 +16,8 @@
 #define COLOR_ADDRESS (117)
 #define COLOR_NUM (195)
 
+#define MAX_NR_LINES (24)
+
 enum Options {
     SUFFIXED_IMM = 1 << 0,
     DECIMAL_IMM = 1 << 1,
@@ -26,7 +28,7 @@ enum Options {
 };
 
 struct disassembly_line {
-    uint32_t address;
+    unsigned int address;
     uint8_t instruction_size;
     char buffer[60];
     uint8_t buffer_size;
@@ -35,9 +37,11 @@ struct disassembly_line {
 class Disassembly {
 private:
     struct zdis_ctx *ctx;
-    disassembly_line disassembly_lines[25] = {};
+    disassembly_line disassembly_lines[MAX_NR_LINES + 1] = {};
     Equates equates;
     uint8_t line = 0;
+
+    void full_disassembly();
 
     bool disassemble_line(bool allow_label);
 
