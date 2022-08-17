@@ -12,6 +12,29 @@ program is a must-have for looking inside your calculator.
 - [ ] Jumping to address or equate
 - [ ] Customizing output format
 
+## Usage
+Run `prgmCEDISASM` from the homescreen, or select the program from a shell. This will
+pop up a screen where you can select whether you want to disassemble the OS or a program.
+Select an option with the `[UP]` and `[DOWN]` keys, and press `[Enter]` to confirm.
+Pressing `[Clear]` will exit the program. If you selected programs, a new screen is shown
+with all the found programs. Select one with again the `[UP]` and `[DOWN]` keys, and press
+`[Enter]` to confirm. Pressing `[Clear]` returns to the main screen.
+
+Now you're in the disassembler screen, cool! It should be pretty straightforward, use the
+`[UP]` and `[DOWN]` keys for scrolling. `[Y=]` is useful for fast scrolling up, one page
+at a time and `[Window]` scrolls fast down, one page at a time. Pressing `[Trace]` brings
+up a popup where you can enter an address or equate. Different modes are available,
+namely num mode, alpha uppercase mode, and alpha mode. Switching between them goes via the
+`[Alpha]` key. In num mode, you can enter numbers, in alpha mode you can enter letters,
+either uppercase or not. Press `[Enter]` to jump to that address or equate. Exiting this
+popup is possible via `[Clear]`.
+
+The last screen is the settings screen, available via the `[Graph]` key. Here you set some
+settings about the disassembly. Select the right row with the `[UP]` and `[DOWN]` keys, 
+then press `[LEFT]` or `[RIGHT]` to switch modes. If you're unsure what these do, just try
+it out! Pressing `[Enter]` or `[Clear]` applies the modes and goes back to the disassembly
+screen.
+
 ## Build
 To build, download and install the [CE C Toolchain](https://ce-programming.github.io/toolchain/index.html)
 and run `make` from the command line. This generates an .8xp file in the `bin/` directory,
