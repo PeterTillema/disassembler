@@ -278,6 +278,8 @@ void Disassembly::run() {
     // Custom character
     uint8_t dots[8] = {0, 0, 0, 0, 0, 0, 0xDB, 0xDB};
     gfx_SetCharData(1, dots);
+    gfx_SetTextTransparentColor(5);
+    gfx_SetTextBGColor(5);
 
     // Next, disassembly the first lines
     full_disassembly();
@@ -347,15 +349,13 @@ void Disassembly::run() {
             gfx_PrintStringXY(goto_buffer, 21, 116);
 
             gfx_SetTextFGColor(255);
-            gfx_SetTextTransparentColor(5);
             gfx_SetTextBGColor(0);
 
             if (state == 0) gfx_PrintChar('1');
             else if (state == 1) gfx_PrintChar('A');
             else gfx_PrintChar('a');
 
-            gfx_SetTextTransparentColor(255);
-            gfx_SetTextBGColor(255);
+            gfx_SetTextBGColor(5);
             gfx_SetMonospaceFont(0);
         }
 
@@ -478,6 +478,7 @@ void Disassembly::run() {
                 goto_popup = true;
                 *goto_buffer = 0;
                 goto_buffer_offset = 0;
+                state = 0;
             }
         }
     }

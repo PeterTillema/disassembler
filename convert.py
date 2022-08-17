@@ -35,11 +35,10 @@ for equate in equates:
 
     if is_jump_table(equate):
         output += ' + 1'
+
     output += '\n'
 
-output += '\n\trb {}'.format(jump_table_equates * 6)
-
-output += '\n\n'
+output += '\n\trb {}\n\n'.format(jump_table_equates * 6)
 
 for equate in equates:
     output += equate[1] + ':\n\tdb "'

@@ -1,6 +1,6 @@
-NAME        ?= DISASSEM
+NAME        ?= CEDISASM
 COMPRESSED  ?= YES
-DESCRIPTION ?= "Disassembler"
+DESCRIPTION ?= "Disassembler CE"
 
 CFLAGS ?= -DDEBUG_SUPPORT -Oz -Wall -Wextra
 CXXFLAGS ?= -O3 -Wall -Wextra

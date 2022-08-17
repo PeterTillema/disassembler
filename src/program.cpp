@@ -13,7 +13,7 @@ static char programs[500][9];
 static int read(struct zdis_ctx *ctx, uint32_t addr) {
     ti_var_t file = *(ti_var_t *) ctx->zdis_user_ptr;
 
-    if (ti_Seek(addr + 2, SEEK_SET, file) == EOF) {
+    if (ti_Seek((int) addr + 2, SEEK_SET, file) == EOF) {
         return EOF;
     }
 
@@ -57,7 +57,7 @@ unsigned int select_program(unsigned int nr_prog) {
     }
 
     if (key == sk_Clear) {
-        return -1;
+        return 0xFFFFFF;
     }
 
     return start_program + relative_selected_program;
@@ -94,7 +94,7 @@ void disassemble_program() {
     }
 
     unsigned int selected_prog = select_program(cur_prog);
-    if (selected_prog == -1) return;
+    if (selected_prog == 0xFFFFFF) return;
 
     slot = ti_OpenVar(programs[selected_prog], "r", TI_PRGM_TYPE);
     if (!slot) slot = ti_OpenVar(programs[selected_prog], "r", TI_PPRGM_TYPE);
