@@ -4,6 +4,8 @@ being able to grab CEmu, this is the right place to be! You can either disassemb
 or any assembly/C/ICE program. Including syntax highlighting and fast scrolling, this
 program is a must-have for looking inside your calculator.
 
+The source can be found on [GitHub](https://github.com/PeterTillema/disassembler).
+
 ## Features
 - [ ] Disassembling the OS
 - [ ] Disassembling any assembly/C/ICE program
