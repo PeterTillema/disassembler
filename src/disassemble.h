@@ -16,7 +16,7 @@
 #define COLOR_ADDRESS (117)
 #define COLOR_NUM (195)
 
-#define MAX_NR_LINES (24)
+#define MAX_NR_LINES (23)
 
 enum Options {
     SUFFIXED_IMM = 1 << 0,

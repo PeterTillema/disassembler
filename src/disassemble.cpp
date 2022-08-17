@@ -292,9 +292,15 @@ void Disassembly::run() {
 
         // Other graphics
         gfx_SetTextFGColor(0);
-        gfx_SetColor(255);
-        gfx_FillRectangle_NoClip(214, 229, 106, 11);
         gfx_SetColor(0);
+        gfx_PrintStringXY("Page up", 7, 231);
+        gfx_VertLine_NoClip(5, 230, 10);
+        gfx_VertLine_NoClip(58, 230, 10);
+        gfx_HorizLine_NoClip(6, 229, 52);
+        gfx_PrintStringXY("Page down", 66, 231);
+        gfx_VertLine_NoClip(64, 230, 10);
+        gfx_VertLine_NoClip(133, 230, 10);
+        gfx_HorizLine_NoClip(65, 229, 68);
         gfx_PrintStringXY("Goto", 217, 231);
         gfx_VertLine_NoClip(215, 230, 10);
         gfx_VertLine_NoClip(248, 230, 10);
@@ -343,6 +349,12 @@ void Disassembly::run() {
                                 goto_buffer[goto_buffer_offset] = 0;
                             } else if (key == 56 && goto_buffer_offset) {
                                 goto_buffer[--goto_buffer_offset] = 0;
+                            } else if (key == 9) {
+                                auto addr = (unsigned int) strtol(goto_buffer, nullptr, 16);
+                                ctx->zdis_end_addr = addr;
+
+                                full_disassembly();
+                                goto_popup = false;
                             }
                         }
                     }
@@ -397,10 +409,10 @@ void Disassembly::run() {
                 if (tmp_line->instruction_size) {
                     ctx->zdis_end_addr = tmp_line->address + tmp_line->instruction_size;
 
-                    line = 23;
+                    line = MAX_NR_LINES - 1;
                     disassemble_line(true);
                 }
-            } else if (kb_IsDown(kb_Key2nd)) {
+            } else if (kb_IsDown(kb_KeyYequ)) {
                 ctx->zdis_end_addr = disassembly_lines[0].address;
 
                 if (ctx->zdis_end_addr >= 60) {
@@ -415,7 +427,7 @@ void Disassembly::run() {
                 }
 
                 full_disassembly();
-            } else if (kb_IsDown(kb_KeyAlpha)) {
+            } else if (kb_IsDown(kb_KeyWindow)) {
                 ctx->zdis_end_addr = disassembly_lines[MAX_NR_LINES - 1].address +
                                      disassembly_lines[MAX_NR_LINES - 1].instruction_size;
 

@@ -2,3 +2,4 @@ bin/
 obj/
 .idea/
 equates.asm
+equates.8xv
