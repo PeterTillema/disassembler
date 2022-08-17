@@ -1,5 +1,6 @@
 #include "disassemble.h"
 #include "equates.h"
+#include "settings.h"
 
 #include <cstring>
 #include <graphx.h>
@@ -479,6 +480,11 @@ void Disassembly::run() {
                 *goto_buffer = 0;
                 goto_buffer_offset = 0;
                 state = 0;
+            } else if (kb_IsDown(kb_KeyGraph)) {
+                ctx = settings(ctx);
+                ctx->zdis_end_addr = disassembly_lines[0].address;
+
+                full_disassembly();
             }
         }
     }
