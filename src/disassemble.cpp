@@ -105,6 +105,9 @@ bool Disassembly::put(struct zdis_ctx *ctx, enum zdis_put kind, int32_t val, boo
                 }
             }
 
+            buffer[buffer_offset++] = COMMAND_SET_COLOR;
+            buffer[buffer_offset++] = 0;
+
             break;
         case ZDIS_PUT_ABS: // JP/CALL immediate targets
             buffer[buffer_offset++] = COMMAND_SET_COLOR;
@@ -151,6 +154,9 @@ bool Disassembly::put(struct zdis_ctx *ctx, enum zdis_put kind, int32_t val, boo
                     }
                 }
             }
+
+            buffer[buffer_offset++] = COMMAND_SET_COLOR;
+            buffer[buffer_offset++] = 0;
 
             break;
         case ZDIS_PUT_CHAR:
