@@ -10,6 +10,33 @@ static unsigned int buffer_offset = 0;
 static char *buffer;
 static Equates static_equates;
 
+static char keys_num[] = {'\0',
+                          '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                          '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                          '\0', '3', '6', '9', '\0', '\0', '\0', '\0',
+                          '\0', '2', '5', '8', '\0', '\0', '\0', '\0',
+                          '0', '1', '4', '7', '\0', '\0', '\0', '\0',
+                          '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                          '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+
+static char keys_alpha_up[] = {'\0',
+                               '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                               '\0', '\0', 'W', 'R', 'M', 'H', '\0', '\0',
+                               '\0', '\0', 'V', 'Q', 'L', 'G', '\0', '\0',
+                               '\0', 'Z', 'U', 'P', 'K', 'F', 'C', '\0',
+                               '_', 'Y', 'T', 'O', 'J', 'E', 'B', '\0',
+                               '\0', 'X', 'S', 'N', 'I', 'D', 'A', '\0',
+                               '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+
+static char keys_alpha[] = {'\0',
+                            '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                            '\0', '\0', 'w', 'r', 'm', 'h', '\0', '\0',
+                            '\0', '\0', 'v', 'q', 'l', 'g', '\0', '\0',
+                            '\0', 'z', 'u', 'p', 'k', 'f', 'c', '\0',
+                            '_', 'y', 't', 'o', 'j', 'e', 'b', '\0',
+                            '\0', 'x', 's', 'n', 'i', 'd', 'a', '\0',
+                            '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+
 Disassembly::Disassembly(struct zdis_ctx *ctx) {
     this->ctx = ctx;
 }
@@ -232,6 +259,7 @@ void Disassembly::run() {
     bool goto_popup = false;
     char goto_buffer[36] = {0};
     unsigned int goto_buffer_offset = 0;
+    uint8_t state = 0;
 
     // First of all, get the equates
     equates = Equates();
@@ -316,7 +344,18 @@ void Disassembly::run() {
             gfx_SetColor(149);
             gfx_FillRectangle_NoClip(20, 115, 281, 10);
             gfx_SetMonospaceFont(8);
-            gfx_PrintStringXY(goto_buffer, 21, 117);
+            gfx_PrintStringXY(goto_buffer, 21, 116);
+
+            gfx_SetTextFGColor(255);
+            gfx_SetTextTransparentColor(5);
+            gfx_SetTextBGColor(0);
+
+            if (state == 0) gfx_PrintChar('1');
+            else if (state == 1) gfx_PrintChar('A');
+            else gfx_PrintChar('a');
+
+            gfx_SetTextTransparentColor(255);
+            gfx_SetTextBGColor(255);
             gfx_SetMonospaceFont(0);
         }
 
@@ -329,20 +368,19 @@ void Disassembly::run() {
                 kb_Scan();
             }
 
-            if (goto_buffer_offset < 35) {
-                static char keys[] = {'\0',
-                                      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-                                      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-                                      '\0', '3', '6', '9', '\0', '\0', '\0', '\0',
-                                      '\0', '2', '5', '8', '\0', 'F', 'C', '\0',
-                                      '0', '1', '4', '7', '\0', 'E', 'B', '\0',
-                                      '\0', '\0', '\0', '\0', '\0', 'D', 'A', '\0',
-                                      '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
+            if (kb_IsDown(kb_KeyAlpha)) {
+                state = (state + 1) % 3;
+            }
 
+            if (goto_buffer_offset < 35) {
                 for (uint8_t key = 1, group = 7; group; --group) {
                     for (uint8_t mask = 1; mask; mask <<= 1, ++key) {
                         if (kb_Data[group] & mask) {
-                            char c = keys[key];
+                            char c;
+
+                            if (state == 0) c = keys_num[key];
+                            else if (state == 1) c = keys_alpha_up[key];
+                            else c = keys_alpha[key];
 
                             if (c) {
                                 goto_buffer[goto_buffer_offset++] = c;
@@ -350,7 +388,12 @@ void Disassembly::run() {
                             } else if (key == 56 && goto_buffer_offset) {
                                 goto_buffer[--goto_buffer_offset] = 0;
                             } else if (key == 9) {
-                                ctx->zdis_end_addr = digits_to_int(goto_buffer);
+                                unsigned int addr;
+                                if (!(addr = equates.find_label(goto_buffer))) {
+                                    addr = digits_to_int(goto_buffer);
+                                }
+
+                                ctx->zdis_end_addr = addr - ctx->zdis_offset;
 
                                 full_disassembly();
                                 goto_popup = false;
@@ -375,8 +418,8 @@ void Disassembly::run() {
                     line0->buffer_size = set_label(line0->buffer, string);
                     line0->address = line1->address;
                 } else {
-                    if (ctx->zdis_start_addr >= 6) {
-                        ctx->zdis_start_addr -= 6;
+                    if (ctx->zdis_start_addr >= 10) {
+                        ctx->zdis_start_addr -= 10;
                     } else {
                         ctx->zdis_start_addr = 0;
                     }

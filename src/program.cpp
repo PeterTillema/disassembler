@@ -68,10 +68,10 @@ void disassemble_program() {
     uint8_t type;
     ti_var_t slot;
     unsigned int cur_prog = 0;
-    void *search_pos = NULL;
+    void *search_pos = nullptr;
 
     // Find all programs
-    while ((temp_name = ti_DetectAny(&search_pos, NULL, &type)) != NULL) {
+    while ((temp_name = ti_DetectAny(&search_pos, nullptr, &type)) != nullptr) {
         if (type == TI_PRGM_TYPE || type == TI_PPRGM_TYPE) {
             slot = ti_OpenVar(temp_name, "r", type);
 

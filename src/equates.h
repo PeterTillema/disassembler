@@ -20,6 +20,8 @@ public:
     void load();
 
     char *find(unsigned int addr);
+
+    unsigned int find_label(char *label);
 };
 
 

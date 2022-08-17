@@ -51,6 +51,8 @@ __Z13digits_to_intPc:
 	inc	de
 	or	a, a
 	ret	z
+	cp	a, 'Z' + 1
+	jr	nc, .null
 	cp	a, 'A'
 	jr	c, .digit
 	sub	a, 'A' - '9' - 1
@@ -63,6 +65,10 @@ __Z13digits_to_intPc:
 	or	a, l
 	ld	l, a
 	jr	.loop
+.null:
+	or	a, a
+	sbc	hl, hl
+	ret
 
 
 	public __Z11byte_to_hexPch
