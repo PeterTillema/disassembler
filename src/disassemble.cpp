@@ -350,8 +350,7 @@ void Disassembly::run() {
                             } else if (key == 56 && goto_buffer_offset) {
                                 goto_buffer[--goto_buffer_offset] = 0;
                             } else if (key == 9) {
-                                auto addr = (unsigned int) strtol(goto_buffer, nullptr, 16);
-                                ctx->zdis_end_addr = addr;
+                                ctx->zdis_end_addr = digits_to_int(goto_buffer);
 
                                 full_disassembly();
                                 goto_popup = false;

@@ -55,6 +55,8 @@ public:
     void run();
 };
 
+unsigned int digits_to_int(char *buf);
+
 void int_to_digits(char *buf, unsigned int val);
 
 void byte_to_hex(char *buf, uint8_t byte);

@@ -40,6 +40,31 @@ __Z13int_to_digitsPcj:
 	ret
 
 
+	public __Z13digits_to_intPc
+__Z13digits_to_intPc:
+	ld	iy, 0
+	add	iy, sp
+	sbc	hl, hl
+	ld	de, (iy + 3)
+.loop:
+	ld	a, (de)
+	inc	de
+	or	a, a
+	ret	z
+	cp	a, 'A'
+	jr	c, .digit
+	sub	a, 'A' - '9' - 1
+.digit:
+	sub	a, '0'
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	or	a, l
+	ld	l, a
+	jr	.loop
+
+
 	public __Z11byte_to_hexPch
 __Z11byte_to_hexPch:
 	ld	iy, 0
